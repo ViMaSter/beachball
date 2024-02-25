@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* http://meyerweb.com/eric/tools/css/reset/ 
+        v2.0 | 20110126
+        License: none (public domain)
+        */
+
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, 
+        figure, figcaption, footer, header, hgroup, 
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        /* HTML5 display-role reset for older browsers */
+        article, aside, details, figcaption, figure, 
+        footer, header, hgroup, menu, nav, section {
+            display: block;
+        }
+        body {
+            line-height: 1;
+        }
+        ol, ul {
+            list-style: none;
+        }
+        blockquote, q {
+            quotes: none;
+        }
+        blockquote:before, blockquote:after,
+        q:before, q:after {
+            content: '';
+            content: none;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+    </style>
+    <script>
+    window.onload = function() {
+        // const myWindow = window.open(location.href.replace('index', 'child'), "myWindow", "width=200, height=100");
+        // // on load of the popup, call the function "bloop"
+        // myWindow.onload = function() {
+        //     myWindow.bloop();
+        // }
+
+        // post onDrag event to the window
+        const onDrag = (e) => {
+            myWindow.postMessage("onDrag", "*");
+        }
+
+        // on window resize, resize canvas to fit window
+        const canvas = document.querySelector('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.onresize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        // draw a circle using beachball.png on canvas
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = 'beachball.png';
+
+        const height = 100;
+        const width = 100;
+        const gravity = 9.807;
+
+        let x = 0;
+        let y = 0;
+
+        let lastDeltaTime = 0;
+        let deltaTime = 0;
+
+        // allow dragging ball
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        const render = () => {
+            deltaTime = new Date().getTime() - lastDeltaTime;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // render a 50 radius circle at x, y
+            ctx.beginPath();
+            ctx.arc(x + width / 2, y + height / 2, width / 2, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // render a 50 radius circle at mouse position
+            ctx.beginPath();
+            ctx.arc(x, y, width / 2, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            if(!isDragging) {
+                // apply gravity and redraw
+                y += gravity * deltaTime / 1000;
+                // clamp at window bottom
+                y = Math.min(y, canvas.height - height);
+            }
+
+            ctx.drawImage(img, x, y, width, height);
+            lastDeltaTime = new Date().getTime();
+            window.requestAnimationFrame(render);
+
+        };
+        
+        window.requestAnimationFrame(render);
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (Math.sqrt((e.clientX - x) ** 2 + (e.clientY - y) ** 2) < width / 2) {
+                isDragging = true;
+                x = e.clientX - canvas.getBoundingClientRect().left;
+                y = e.clientY - canvas.getBoundingClientRect().top;
+            }
+        });
+    };
+    </script>
+</head>
+<body>
+    <canvas></canvas>
+</body>
+</html>
